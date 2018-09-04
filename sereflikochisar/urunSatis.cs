@@ -23,17 +23,48 @@ namespace sereflikochisar
 
         urunEkle frm = (urunEkle)Application.OpenForms["urunEkle"];
         MainMenu frm2 = (MainMenu)Application.OpenForms["MainMenu"];
+        
+            
 
         private void urunSatis_Load(object sender, EventArgs e)
         {
             this.ActiveControl = txtbarkod;
+            lblAyar.Visible = false;
+            lblAyar2.Visible = false;
+            lblGram.Visible = false;
+            lblGram2.Visible = false;
+            lblFirma.Visible = false;
+            lblFirma2.Visible = false;
+            lblKategori.Visible = false;
+            lblKategori2.Visible = false;
+            lblMilyem.Visible = false;
+            lblMilyem2.Visible = false;
+            label1.Visible = false;
+            btnSatis.Visible = false;
+            txtSatisFiyat.Visible = false;
+
+
+            veriCekAsync();
+
+           
+            
+       
+
+          
+
+        }
+        private async  void veriCekAsync()
+        {
+            this.Cursor = Cursors.WaitCursor;
+         // await  Task.Delay(5000);
+            
             try
             {
                 altinkaynak.DataServiceSoapClient altin = new altinkaynak.DataServiceSoapClient();
                 altinkaynak.AuthHeader yetki = new altinkaynak.AuthHeader();
                 yetki.Username = "AltinkaynakWebServis";
                 yetki.Password = "AltinkaynakWebServis";
-                string veri = altin.GetGold(yetki);
+                string veri =(await altin.GetGoldAsync(yetki)).GetGoldResult;
 
 
                 XmlReader reader = XmlReader.Create(new StringReader(veri));
@@ -46,73 +77,30 @@ namespace sereflikochisar
                 var satiss = decimal.Parse(node["Satis"].InnerText);
                 var aciklama = node["Aciklama"].InnerText;
 
-
-
-
-
-                //List<string> adi = new List<string>();
-                //    List<string> alis = new List<string>();
-                //    List<string> satis = new List<string>();
-
-                //    while (reader.Read())
-                //    {
-
-                //        switch (reader.Name.ToString())
-                //        {
-
-
-                //            case "Alis":
-                //                satis.Add(reader.ReadString());
-                //                break;
-                //            case "Satis":
-                //                alis.Add(reader.ReadString());
-                //                break;
-                //            case "Aciklama":
-                //                adi.Add(reader.ReadString());
-                //                break;
-                //        }
-
-                //    }
-
                 label7.Text = aciklama;
                 label10.Text = aliss.ToString("#.##");  //dispatch thread bak...
                 label11.Text = satiss.ToString("#.##");
 
-                lblAyar.Visible = false;
-                lblAyar2.Visible = false;
-                lblGram.Visible = false;
-                lblGram2.Visible = false;
-                lblFirma.Visible = false;
-                lblFirma2.Visible = false;
-                lblKategori.Visible = false;
-                lblKategori2.Visible = false;
-                lblMilyem.Visible = false;
-                lblMilyem2.Visible = false;
-                label1.Visible = false;
-                btnSatis.Visible = false;
-                txtSatisFiyat.Visible = false;
-                
 
-
-
-
-                
             }
             catch (Exception)
             {
 
                 MessageBox.Show("Alış-Satış Fiyat Verileri Çekilemedi!! İnternet bağlantınızı kontrol ediniz ulen!! :)");
             }
-
-
+            finally
+            {
+                this.Cursor = Cursors.Default;
+            }
         }
+
 
         private void btnSatis_Click(object sender, EventArgs e)
         {
             DialogResult cvp = MessageBox.Show("Satış yapılacak. Emin misiniz?", "Satış Onayı", MessageBoxButtons.YesNo);
-            
-                try
-                {
+
+            try
+            {
                 if (cvp == DialogResult.Yes)
                 {
                     DateTimePicker tarihcikis = new DateTimePicker();
@@ -124,15 +112,15 @@ namespace sereflikochisar
                         MessageBox.Show("Satış Yapıldı");
                     }
                 }
-                }
-                catch (Exception ex)
-                {
-                    hata = ex.Message;
-                    MessageBox.Show(hata);
-                }
+            }
+            catch (Exception ex)
+            {
+                hata = ex.Message;
+                MessageBox.Show(hata);
+            }
 
 
-           
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -174,13 +162,13 @@ namespace sereflikochisar
 
                 MessageBox.Show("Hata! Barkod veritabanında bulunamadı!");
             }
-            
+
 
         }
 
         private void txtbarkod_TextChanged(object sender, EventArgs e)
         {
-            if (txtbarkod.TextLength==6)
+            if (txtbarkod.TextLength == 6)
             {
                 btnGet.PerformClick();
             }
